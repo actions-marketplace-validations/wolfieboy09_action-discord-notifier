@@ -46,5 +46,9 @@
         "jest": "^30.4.1",
         "make-coverage-badge": "^1.2.0",
         "prettier": "^3.8.3"
+    },
+    "allowScripts": {
+        "@parcel/watcher@2.6.0": true,
+        "unrs-resolver@1.12.2": true
     }
 }
