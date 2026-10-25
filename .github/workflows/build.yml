@@ -43,5 +43,5 @@ jobs:
           body_path: CHANGELOG.md
           files: |
             dist/index.js
-            licenses.txt
+            dist/licenses.txt
           make_latest: true
