@@ -1,4 +1,4 @@
-name: Discord Commit Webhook
+name: Discord Commit Webhook Notifier
 description: Send notifications via Discord webhook.
 branding:
   color: blue
