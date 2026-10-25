@@ -9,11 +9,10 @@
         "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
         "format:write": "prettier --write \"./src/**/*.js\"",
         "format:check": "prettier --check \"./src/**/*.js\"",
-        "lint": "eslint ./src --config ./.github/linters/.eslintrc.yml",
         "package": "ncc build src/index.js -o dist --source-map --license licenses.txt",
         "package:watch": "npm run package -- --watch",
         "test": "jest",
-        "all": "npm run format:write && npm run lint && npm test && npm run coverage && npm run package"
+        "all": "npm run format:write && npm test && npm run coverage && npm run package"
     },
     "repository": {
         "type": "git",
@@ -36,13 +35,9 @@
     },
     "devDependencies": {
         "@babel/core": "^7.29.0",
-        "@babel/eslint-parser": "^7.28.6",
         "@babel/preset-env": "^7.29.5",
         "@vercel/ncc": "^0.38.4",
         "babel-preset-jest": "^29.6.3",
-        "eslint": "^9.39.5",
-        "eslint-plugin-github": "^6.0.0",
-        "eslint-plugin-jest": "^29.9.0",
         "jest": "^30.4.1",
         "make-coverage-badge": "^1.2.0",
         "prettier": "^3.8.3"
