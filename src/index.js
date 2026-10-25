@@ -29,7 +29,8 @@ async function run() {
 
     const beforeSha = githubPayload.before
     const afterSha = githubPayload.after
-    const compareUrl = `${githubPayload.repository.html_url}/compare/${beforeSha}...${afterSha}`
+    const repoUrl = githubPayload.repository.html_url.replace(/\/$/, '')
+    const compareUrl = `${repoUrl}/compare/${beforeSha}...${afterSha}`
 
     function embedConstructor(arr, limit = 4096) {
       const result = [];
