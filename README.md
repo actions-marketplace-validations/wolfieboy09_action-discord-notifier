@@ -21,11 +21,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-<<<<<<< HEAD
-      - uses: fateyan/action-discord-notifier@v1
-=======
-      - uses: fateyan/action-discord-notifier@v1.3.0
->>>>>>> 132d189 (Initial commit and bug fix)
+      - uses: wolfieboy09/action-discord-notifier@v1.3.0
         with:
           message-title: New Commits Pushed
           webhook: https://discordapp.com/api/webhooks/00000000000/secret
