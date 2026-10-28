@@ -1,7 +1,7 @@
 {
     "name": "@wolfieboy09/action-discord-notifier",
-    "version": "1.0.0",
-    "description": "Use discord webhook to get notification about commits.",
+    "version": "1.0.1",
+    "description": "Use a Discord webhook to get notifications about commits.",
     "main": "index.js",
     "scripts": {
         "bundle": "npm run format:write && npm run package",
