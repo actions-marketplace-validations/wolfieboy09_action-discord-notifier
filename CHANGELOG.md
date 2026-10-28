@@ -1,2 +1,2 @@
-# 1.3.0
-- Fix bug with comparing hashes
+# 1.3.2
+- Minor change
