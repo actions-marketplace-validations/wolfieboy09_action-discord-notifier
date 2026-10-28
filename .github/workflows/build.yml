@@ -35,11 +35,15 @@ jobs:
       - name: Build action
         run: npm run package
 
+      - name: Get version from package.json
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: Latest Release
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
           body_path: CHANGELOG.md
           files: |
             dist/index.js
