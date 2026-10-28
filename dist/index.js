@@ -51548,7 +51548,7 @@ async function run() {
 
     const commits = githubPayload.commits.map(
       (i) =>
-        `- [\`[${shortSha(i.id)}]\`](${i.url}) ${escapeMd(i.message).replace(/(^-)/gm, " -")} - by ${i.author.name}`,
+        `- [\`[${shortSha(i.id)}]\`](${i.url}) ${escapeMd(i.message).replace(/(^-)/gm, " -")} - ${i.author.name}`,
     );
 
     if (!commits.length) {
