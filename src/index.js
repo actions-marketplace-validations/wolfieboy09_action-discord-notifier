@@ -24,6 +24,12 @@ async function run() {
 
     const { payload: githubPayload } = github.context;
 
+    // Git has commit count capped at 20
+    const commitCount = githubPayload.size ?? githubPayload.commits.length;
+    const commitWord = commitCount === 1 ? "commit" : "commits";
+
+    core.setOutput("commit-count", String(commitCount));
+
     const commits = githubPayload.commits.map(
       (i) =>
         `- [\`[${shortSha(i.id)}]\`](${i.url}) ${escapeMd(i.message).replace(/(^-)/gm, " -")} - by ${i.author.name}`,
@@ -57,11 +63,14 @@ async function run() {
         result.push(currentChunk.join("\n"));
       }
 
+      const titleTemplate =
+        core.getInput("message-title") || "Commits received";
+      const title = titleTemplate
+        .replace(/\{count\}/g, commitCount)
+        .replace(/\{commits\}/g, commitWord);
+
       return result.map((i, index) => ({
-        title:
-          index === 0
-            ? core.getInput("message-title") || "Commits received"
-            : "",
+        title: index === 0 ? title : "",
         description: i,
       }));
     }
