@@ -32,17 +32,16 @@ async function run() {
 
     const commits = githubPayload.commits.map(
       (i) =>
-        `- [\`[${shortSha(i.id)}]\`](${i.url}) ${escapeMd(i.message).replace(/(^-)/gm, " -")} - ${i.author.name}`,
+        `- [\`${shortSha(i.id)}\`](${i.url}) ${escapeMd(i.message.split("\n")[0]).replace(/^-/, " -")}`,
     );
-
-    if (!commits.length) {
-      return;
-    }
 
     const beforeSha = githubPayload.before;
     const afterSha = githubPayload.after;
     const repoUrl = githubPayload.repository.html_url.replace(/\/$/, "");
     const compareUrl = `${repoUrl}/compare/${beforeSha}...${afterSha}`;
+
+    const header = core.getInput("header");
+    const editId = core.getInput("edit-message-id");
 
     function embedConstructor(arr, limit = 4096) {
       const result = [];
@@ -75,23 +74,25 @@ async function run() {
       }));
     }
 
+    const lines = [
+      ...(header ? [`# ${header}`] : []),
+      `[\`[${shortSha(beforeSha)}...${shortSha(afterSha)}\]\`](${compareUrl})`,
+      ...commits,
+    ];
+
     const payload = {
       content: "",
-      embeds: embedConstructor(
-        [
-          `[\`\[${shortSha(beforeSha)}...${shortSha(afterSha)}\]\`](${compareUrl})`,
-        ].concat(commits),
-      ),
+      embeds: embedConstructor(lines),
     };
 
-    axios
-      .post(webhook, payload)
-      .then((res) => {
-        core.setOutput("result", "Webhook sent");
-      })
-      .catch((err) => {
-        core.setFailed(`Post to webhook failed, ${err}`);
-      });
+    const res = editId
+      ? await axios.patch(`${webhook}/messages/${editId}`, payload)
+      : await axios.post(`${webhook}?wait=true`, payload);
+
+    if (!editId) {
+      core.setOutput("message-id", res.data.id);
+    }
+    core.setOutput("result", editId ? "Webhook message edited" : "Webhook sent");
   } catch (error) {
     core.setFailed(error.message);
   }
