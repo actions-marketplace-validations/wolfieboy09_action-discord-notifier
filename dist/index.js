@@ -51524,6 +51524,7 @@ async function run() {
 
     if (github_context.eventName !== "push") {
       setFailed("This action only works on push events.");
+      return;
     }
 
     if (
@@ -51532,6 +51533,7 @@ async function run() {
       setFailed(
         'The given discord webhook url is invalid. Please ensure you give a **full** url that start with "https://discordapp.com/api/webhooks"',
       );
+      return;
     }
 
     const shortSha = (i) => i.substr(0, 6);
@@ -51548,17 +51550,17 @@ async function run() {
 
     const commits = githubPayload.commits.map(
       (i) =>
-        `- [\`[${shortSha(i.id)}]\`](${i.url}) ${escapeMd(i.message).replace(/(^-)/gm, " -")} - ${i.author.name}`,
+        `- [\`${shortSha(i.id)}\`](${i.url}) ${escapeMd(i.message.split("\n")[0]).replace(/^-/, " -")}`,
     );
-
-    if (!commits.length) {
-      return;
-    }
 
     const beforeSha = githubPayload.before;
     const afterSha = githubPayload.after;
     const repoUrl = githubPayload.repository.html_url.replace(/\/$/, "");
     const compareUrl = `${repoUrl}/compare/${beforeSha}...${afterSha}`;
+
+    const header = getInput("header");
+    const editId = getInput("edit-message-id");
+    const titleUrl = getInput("title-url");
 
     function embedConstructor(arr, limit = 4096) {
       const result = [];
@@ -51585,36 +51587,43 @@ async function run() {
         .replace(/\{count\}/g, commitCount)
         .replace(/\{commits\}/g, commitWord);
 
-      return result.map((i, index) => ({
-        title: index === 0 ? title : "",
-        description: i,
-      }));
+      return result.map((i, index) => {
+        const embed = {
+          title: index === 0 ? title : "",
+          description: i,
+        };
+        if (index === 0 && titleUrl) {
+          embed.url = titleUrl;
+        }
+        return embed;
+      });
     }
+
+    const lines = [
+      ...(header ? [`# ${header}`] : []),
+      `[\`[${shortSha(beforeSha)}...${shortSha(afterSha)}\]\`](${compareUrl})`,
+      ...commits,
+    ];
 
     const payload = {
       content: "",
-      embeds: embedConstructor(
-        [
-          `[\`\[${shortSha(beforeSha)}...${shortSha(afterSha)}\]\`](${compareUrl})`,
-        ].concat(commits),
-      ),
+      embeds: embedConstructor(lines),
     };
 
-    lib_axios
-      .post(webhook, payload)
-      .then((res) => {
-        setOutput("result", "Webhook sent");
-      })
-      .catch((err) => {
-        setFailed(`Post to webhook failed, ${err}`);
-      });
+    const res = editId
+      ? await lib_axios.patch(`${webhook}/messages/${editId}`, payload)
+      : await lib_axios.post(`${webhook}?wait=true`, payload);
+
+    if (!editId) {
+      setOutput("message-id", res.data.id);
+    }
+    setOutput("result", editId ? "Webhook message edited" : "Webhook sent");
   } catch (error) {
     setFailed(error.message);
   }
 }
 
 run();
-
 })();
 
 module.exports = __webpack_exports__;
