@@ -51548,10 +51548,11 @@ async function run() {
 
     setOutput("commit-count", String(commitCount));
 
-    const commits = githubPayload.commits.map(
-      (i) =>
-        `- [\`${shortSha(i.id)}\`](${i.url}) ${escapeMd(i.message.split("\n")[0]).replace(/^-/, " -")}`,
-    );
+    const commits = githubPayload.commits.map((i) => {
+      const author = i.author?.username ?? i.author?.name ?? "unknown";
+      const firstLine = escapeMd(i.message.split("\n")[0]).replace(/^-/, " -");
+      return `- [\`${shortSha(i.id)}\`](${i.url}) ${firstLine} - by ${author}`;
+    });
 
     const beforeSha = githubPayload.before;
     const afterSha = githubPayload.after;
