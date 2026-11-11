@@ -51524,6 +51524,7 @@ async function run() {
 
     if (github_context.eventName !== "push") {
       setFailed("This action only works on push events.");
+      return;
     }
 
     if (
@@ -51532,6 +51533,7 @@ async function run() {
       setFailed(
         'The given discord webhook url is invalid. Please ensure you give a **full** url that start with "https://discordapp.com/api/webhooks"',
       );
+      return;
     }
 
     const shortSha = (i) => i.substr(0, 6);
@@ -51558,6 +51560,7 @@ async function run() {
 
     const header = getInput("header");
     const editId = getInput("edit-message-id");
+    const titleUrl = getInput("title-url");
 
     function embedConstructor(arr, limit = 4096) {
       const result = [];
@@ -51584,10 +51587,16 @@ async function run() {
         .replace(/\{count\}/g, commitCount)
         .replace(/\{commits\}/g, commitWord);
 
-      return result.map((i, index) => ({
-        title: index === 0 ? title : "",
-        description: i,
-      }));
+      return result.map((i, index) => {
+        const embed = {
+          title: index === 0 ? title : "",
+          description: i,
+        };
+        if (index === 0 && titleUrl) {
+          embed.url = titleUrl;
+        }
+        return embed;
+      });
     }
 
     const lines = [
@@ -51615,7 +51624,6 @@ async function run() {
 }
 
 run();
-
 })();
 
 module.exports = __webpack_exports__;
